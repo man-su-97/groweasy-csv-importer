@@ -1,6 +1,5 @@
-// Mirrors apps/api/src/types/crm.ts — kept as a plain copy since the
-// project is stateless with two independently deployed apps. Update both
-// when the schema changes.
+// mirrors apps/api/src/types/crm.ts — kept as a plain copy since the two
+// apps deploy independently, update both when the schema changes
 export const CRM_STATUS_VALUES = [
   "GOOD_LEAD_FOLLOW_UP",
   "DID_NOT_CONNECT",
@@ -38,9 +37,7 @@ export interface CrmRecord {
   description: string | null;
 }
 
-// Canonical column order for the CRM schema — shared by the sample CSV
-// template (CsvDropzone) and the results export (ResultsTable) so both
-// stay in sync with apps/api/src/types/crm.ts by construction.
+// shared column order for the sample CSV template and the results export
 export const CRM_FIELD_ORDER: (keyof CrmRecord)[] = [
   "created_at",
   "name",

@@ -170,7 +170,6 @@ async function mapBatch(rows: RawCsvRow[]): Promise<Partial<CrmRecord>[]> {
       return parsed.records ?? [];
     } catch (err) {
       lastError = err;
-      // Retry the failed batch only — not the whole file (bonus: retry mechanism).
       if (attempt < MAX_RETRIES) {
         await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
       }
@@ -180,16 +179,10 @@ async function mapBatch(rows: RawCsvRow[]): Promise<Partial<CrmRecord>[]> {
   throw lastError instanceof Error ? lastError : new Error("AI batch mapping failed");
 }
 
-/**
- * Maps all rows to CRM records, in bounded batches processed with bounded
- * concurrency (default 4 in flight) rather than one-at-a-time — a batch
- * call spends most of its time waiting on the model, so running several
- * concurrently cuts wall-clock time roughly proportionally without
- * changing what's sent per call. If one batch exhausts its retries, that
- * batch's rows are dropped (counted as skipped by the caller via the
- * row-count mismatch) rather than failing the whole import — one bad batch
- * shouldn't sink an otherwise-successful large CSV.
- */
+// runs batches with a few in flight at once instead of one-at-a-time —
+// most of the wait is on the model responding, not local work, so this
+// cuts total time roughly proportionally. a batch that fails all retries
+// just gets dropped (shows up as skipped) instead of failing the import
 export async function mapRowsToCrm(rows: RawCsvRow[]): Promise<Partial<CrmRecord>[]> {
   const batches = chunk(rows, BATCH_SIZE);
   const results: Partial<CrmRecord>[][] = new Array(batches.length);

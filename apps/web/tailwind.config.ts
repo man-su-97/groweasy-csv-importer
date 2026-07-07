@@ -1,11 +1,6 @@
 import type { Config } from "tailwindcss";
 
-// Standard shadcn/ui token setup: every color resolves through a CSS
-// variable defined in globals.css (:root / .dark), so components stay
-// theme-agnostic. --primary is the only value overridden from shadcn's
-// default neutral preset — mapped to the GrowEasy coral/orange brand color
-// instead of shadcn's default near-black, everything else (background,
-// border, muted, destructive, radius) is the stock shadcn "Neutral" theme.
+// standard shadcn/ui setup — colors resolve through CSS vars in globals.css
 const config: Config = {
   darkMode: ["class"],
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],

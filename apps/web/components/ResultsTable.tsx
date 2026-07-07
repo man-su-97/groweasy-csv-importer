@@ -32,10 +32,6 @@ interface ResultsTableProps {
   result: ImportResult;
 }
 
-/**
- * Step 4 — shows AI-extracted CRM records plus the imported/skipped/total
- * counts the spec asks for.
- */
 export function ResultsTable({ result }: ResultsTableProps) {
   const { imported, skipped, total } = result;
 

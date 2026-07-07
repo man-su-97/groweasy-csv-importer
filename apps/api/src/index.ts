@@ -5,15 +5,11 @@ import { importRouter } from "./routes/import";
 
 const app = express();
 const PORT = Number(process.env.PORT || 4000);
-// Strip a trailing slash — a browser's Origin header is always
-// "scheme://host[:port]" with no trailing slash, so a copy-pasted deploy
-// URL like "https://app.vercel.app/" would otherwise never string-match
-// the incoming request and CORS would silently reject every call.
+// strip trailing slash so it matches the browser's Origin header exactly
 const CORS_ORIGIN = (process.env.CORS_ORIGIN || "http://localhost:3000").replace(/\/+$/, "");
 
 app.use(cors({ origin: CORS_ORIGIN }));
-// Large CSVs can be several MB of raw text in the request body.
-app.use(express.json({ limit: "20mb" }));
+app.use(express.json({ limit: "20mb" })); // large CSVs can be a few MB as raw text
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });

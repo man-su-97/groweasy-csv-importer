@@ -17,9 +17,8 @@ export const DATA_SOURCE_VALUES = [
 
 export type DataSource = (typeof DATA_SOURCE_VALUES)[number];
 
-// Field names match the GrowEasy CRM contract verbatim — the AI prompt in
-// aiMapper.ts references these names directly. Don't rename without
-// updating the prompt and the frontend's ResultsTable columns too.
+// these field names are referenced directly in aiMapper.ts's prompt, so
+// renaming one means updating the prompt too
 export interface CrmRecord {
   created_at: string | null;
   name: string | null;
@@ -38,7 +37,6 @@ export interface CrmRecord {
   description: string | null;
 }
 
-// Raw CSV row — column names are unknown ahead of time, hence untyped keys.
 export type RawCsvRow = Record<string, string>;
 
 export interface ImportResult {

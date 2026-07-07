@@ -22,23 +22,14 @@ function isValidDate(value: unknown): boolean {
   return !Number.isNaN(new Date(value).getTime());
 }
 
-/**
- * Escape embedded newlines so the record stays a single CSV row if it's
- * ever exported. Applied to any free-text field.
- */
+// keeps a record as one CSV row if it's ever exported
 function escapeNewlines(value: string | null): string | null {
   if (value == null) return value;
   return value.replace(/\r\n|\r|\n/g, "\\n");
 }
 
-/**
- * Server-side re-validation of one AI-produced record against the CRM
- * contract. The model is the mapper, not the source of truth for
- * enums/date format — never pass raw model output straight through.
- *
- * Returns null if the record fails the hard skip rule: neither email nor
- * mobile present.
- */
+// re-checks everything the model returned — enums, date format, the skip
+// rule — instead of trusting the model's output directly
 export function sanitizeRecord(raw: Partial<CrmRecord>): CrmRecord | null {
   const email = typeof raw.email === "string" && raw.email.trim() !== "" ? raw.email.trim() : null;
   const mobile =
@@ -47,12 +38,11 @@ export function sanitizeRecord(raw: Partial<CrmRecord>): CrmRecord | null {
       ? raw.mobile_without_country_code.trim()
       : null;
 
-  // Hard skip rule: drop the record if neither email nor mobile is present.
+  // drop if we have neither an email nor a mobile number
   if (!email && !mobile) return null;
 
   const created_at = isValidDate(raw.created_at) ? (raw.created_at as string) : null;
   const crm_status = isValidCrmStatus(raw.crm_status) ? raw.crm_status : null;
-  // Blank (not a guess) if the model isn't confident about data_source.
   const data_source = isValidDataSource(raw.data_source) ? raw.data_source : null;
 
   return {
@@ -74,11 +64,6 @@ export function sanitizeRecord(raw: Partial<CrmRecord>): CrmRecord | null {
   };
 }
 
-/**
- * Runs sanitizeRecord over a batch, splitting into imported vs skipped
- * counts. Never throws on a single bad record — one malformed row from the
- * AI must not fail the whole batch.
- */
 export function sanitizeBatch(rawRecords: Partial<CrmRecord>[]): {
   imported: CrmRecord[];
   skipped: number;

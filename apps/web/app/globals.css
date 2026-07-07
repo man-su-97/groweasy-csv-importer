@@ -4,9 +4,7 @@
 
 @layer base {
   :root {
-    /* Pale sage wash, lifted from groweasy.ai's actual section backgrounds —
-       cards stay pure white on top so they read as layered, same as the
-       reference site's white-card-on-tinted-section pattern. */
+    /* pale sage background, cards stay white on top */
     --background: 130 20% 97%;
     --foreground: 0 0% 9%;
 
@@ -16,10 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    /* GrowEasy coral/orange (matches the site's CTA buttons) and deep
-       forest-green (matches the site's nav bar / dark section cards) — the
-       two deliberate deviations from shadcn's default neutral primary.
-       Everything else below is stock shadcn. */
+    /* GrowEasy coral + forest-green, everything else is stock shadcn */
     --primary: 18.6 79.3% 60.2%;
     --primary-foreground: 0 0% 100%;
 

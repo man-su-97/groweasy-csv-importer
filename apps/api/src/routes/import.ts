@@ -40,7 +40,7 @@ importRouter.post("/import", async (req: Request<unknown, unknown, ImportRequest
   }
 
   const { imported, skipped: sanitizeSkipped } = sanitizeBatch(mapped);
-  // Rows the AI mapper dropped entirely (batch failure after retries) also count as skipped.
+  // rows dropped by a failed batch count as skipped too
   const droppedByAi = rows.length - mapped.length;
   const skipped = sanitizeSkipped + Math.max(0, droppedByAi);
 

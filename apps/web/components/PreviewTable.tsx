@@ -7,10 +7,6 @@ interface PreviewTableProps {
   maxRows?: number;
 }
 
-/**
- * Step 2 — raw preview only, no AI mapping applied yet. Sticky header +
- * horizontal/vertical scroll for wide or long CSVs.
- */
 export function PreviewTable({ columns, rows, maxRows = 200 }: PreviewTableProps) {
   const visibleRows = rows.slice(0, maxRows);
 

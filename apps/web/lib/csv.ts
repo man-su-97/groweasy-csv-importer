@@ -6,11 +6,7 @@ export interface ParsedCsv {
   columns: string[];
 }
 
-/**
- * Client-side preview parse only (Step 2 of the flow). No AI call happens
- * here — this is purely for rendering the PreviewTable before the user
- * confirms the import.
- */
+// client-side only, just for the preview table — no AI call happens here
 export function parseCsvFile(file: File): Promise<ParsedCsv> {
   return new Promise((resolve, reject) => {
     Papa.parse<RawCsvRow>(file, {
@@ -34,12 +30,6 @@ export function readFileAsText(file: File): Promise<string> {
   });
 }
 
-/**
- * Step 4 — serializes the AI-mapped, server-validated records back into a
- * CSV a user can re-import elsewhere as a "cleaned" version of their file.
- * Uses papaparse's own escaping (quotes, embedded commas) rather than
- * hand-rolled string joining.
- */
 export function recordsToCsv(records: CrmRecord[], fieldOrder: (keyof CrmRecord)[]): string {
   const data = records.map((record) => fieldOrder.map((field) => record[field] ?? ""));
   return Papa.unparse({ fields: fieldOrder as string[], data });
