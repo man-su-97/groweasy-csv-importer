@@ -3,6 +3,7 @@ import { CRM_STATUS_VALUES, DATA_SOURCE_VALUES, CrmRecord, RawCsvRow } from "../
 
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 const BATCH_SIZE = Number(process.env.AI_BATCH_SIZE || 25);
+const BATCH_CONCURRENCY = Number(process.env.AI_BATCH_CONCURRENCY || 4);
 const MAX_RETRIES = 2;
 
 let client: OpenAI | null = null;
@@ -180,25 +181,36 @@ async function mapBatch(rows: RawCsvRow[]): Promise<Partial<CrmRecord>[]> {
 }
 
 /**
- * Maps all rows to CRM records, in bounded batches. If one batch exhausts
- * its retries, that batch's rows are dropped (counted as skipped by the
- * caller via the row-count mismatch) rather than failing the whole import —
- * one bad batch shouldn't sink an otherwise-successful large CSV.
+ * Maps all rows to CRM records, in bounded batches processed with bounded
+ * concurrency (default 4 in flight) rather than one-at-a-time — a batch
+ * call spends most of its time waiting on the model, so running several
+ * concurrently cuts wall-clock time roughly proportionally without
+ * changing what's sent per call. If one batch exhausts its retries, that
+ * batch's rows are dropped (counted as skipped by the caller via the
+ * row-count mismatch) rather than failing the whole import — one bad batch
+ * shouldn't sink an otherwise-successful large CSV.
  */
 export async function mapRowsToCrm(rows: RawCsvRow[]): Promise<Partial<CrmRecord>[]> {
   const batches = chunk(rows, BATCH_SIZE);
-  const results: Partial<CrmRecord>[] = [];
+  const results: Partial<CrmRecord>[][] = new Array(batches.length);
 
-  for (const batch of batches) {
-    try {
-      const mapped = await mapBatch(batch);
-      results.push(...mapped);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(`AI batch of ${batch.length} rows failed after retries:`, err);
+  let nextIndex = 0;
+  async function worker() {
+    while (nextIndex < batches.length) {
+      const i = nextIndex++;
+      try {
+        results[i] = await mapBatch(batches[i]);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(`AI batch of ${batches[i].length} rows failed after retries:`, err);
+        results[i] = [];
+      }
     }
   }
 
-  return results;
+  const workerCount = Math.min(BATCH_CONCURRENCY, batches.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+
+  return results.flat();
 }
 
