@@ -11,9 +11,9 @@ const PARSE_OPTIONS = {
 // Candidates to try, in order, only when comma parsing collapses to a
 // single column. csv-parse's multi-delimiter auto-detect (`delimiter: [...]`)
 // isn't quote-aware — it miscounts a delimiter char that appears inside a
-// quoted value (e.g. "arjun@gmail.com; arjun.rao@work.com", the exact
-// multi-email shape Invariant 5 requires) and shifts every column. Trying
-// comma first and only falling back on genuine failure avoids that.
+// quoted value (e.g. "arjun@gmail.com; arjun.rao@work.com", a multi-email
+// cell) and shifts every column. Trying comma first and only falling back
+// on genuine failure avoids that.
 const FALLBACK_DELIMITERS = [";", "\t", "|"];
 
 /**

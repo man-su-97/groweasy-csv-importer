@@ -24,7 +24,7 @@ function isValidDate(value: unknown): boolean {
 
 /**
  * Escape embedded newlines so the record stays a single CSV row if it's
- * ever exported (Invariant 6). Applied to any free-text field.
+ * ever exported. Applied to any free-text field.
  */
 function escapeNewlines(value: string | null): string | null {
   if (value == null) return value;
@@ -33,12 +33,11 @@ function escapeNewlines(value: string | null): string | null {
 
 /**
  * Server-side re-validation of one AI-produced record against the CRM
- * contract (ARCHITECTURE.md "Invariants"). The model is the mapper, not the
- * source of truth for enums/date format — never pass raw model output
- * straight through.
+ * contract. The model is the mapper, not the source of truth for
+ * enums/date format — never pass raw model output straight through.
  *
- * Returns null if the record fails the hard skip rule (Invariant 7:
- * neither email nor mobile present).
+ * Returns null if the record fails the hard skip rule: neither email nor
+ * mobile present.
  */
 export function sanitizeRecord(raw: Partial<CrmRecord>): CrmRecord | null {
   const email = typeof raw.email === "string" && raw.email.trim() !== "" ? raw.email.trim() : null;
@@ -48,12 +47,12 @@ export function sanitizeRecord(raw: Partial<CrmRecord>): CrmRecord | null {
       ? raw.mobile_without_country_code.trim()
       : null;
 
-  // Invariant 7 — skip if neither email nor mobile is present.
+  // Hard skip rule: drop the record if neither email nor mobile is present.
   if (!email && !mobile) return null;
 
   const created_at = isValidDate(raw.created_at) ? (raw.created_at as string) : null;
   const crm_status = isValidCrmStatus(raw.crm_status) ? raw.crm_status : null;
-  // Invariant 2 — blank (not a guess) if the model isn't confident.
+  // Blank (not a guess) if the model isn't confident about data_source.
   const data_source = isValidDataSource(raw.data_source) ? raw.data_source : null;
 
   return {

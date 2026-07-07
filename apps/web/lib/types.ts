@@ -1,7 +1,6 @@
 // Mirrors apps/api/src/types/crm.ts — kept as a plain copy since the
-// project is stateless with two independently deployed apps (see
-// ARCHITECTURE.md "Conventions: Adding a CRM field" — update both when the
-// schema changes).
+// project is stateless with two independently deployed apps. Update both
+// when the schema changes.
 export const CRM_STATUS_VALUES = [
   "GOOD_LEAD_FOLLOW_UP",
   "DID_NOT_CONNECT",
