@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.next/
+out/
+*.tsbuildinfo
+# Ignore every real env file (.env, .env.local, .env.prod, ...) but keep
+# the *.example templates trackable — they carry no secrets.
+.env*
+!.env.example
+!.env.prod.example
+*.log
+.DS_Store
+
+# Local editor/assistant tooling config — not part of the project.
+.claude/
+.vscode/
+.idea/
