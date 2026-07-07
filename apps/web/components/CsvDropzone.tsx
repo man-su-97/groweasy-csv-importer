@@ -5,29 +5,12 @@ import { Download, UploadCloud } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { CRM_FIELD_ORDER } from "@/lib/types";
 
 interface CsvDropzoneProps {
   onFileSelected: (file: File) => void;
   disabled?: boolean;
 }
-
-const CRM_HEADERS = [
-  "created_at",
-  "name",
-  "email",
-  "country_code",
-  "mobile_without_country_code",
-  "company",
-  "city",
-  "state",
-  "country",
-  "lead_owner",
-  "crm_status",
-  "crm_note",
-  "data_source",
-  "possession_time",
-  "description",
-];
 
 const SAMPLE_CSV_ROW = [
   "2026-05-13 14:20:48",
@@ -48,7 +31,7 @@ const SAMPLE_CSV_ROW = [
 ];
 
 const SAMPLE_CSV_HREF = `data:text/csv;charset=utf-8,${encodeURIComponent(
-  `${CRM_HEADERS.join(",")}\n${SAMPLE_CSV_ROW.map((v) => `"${v}"`).join(",")}\n`,
+  `${CRM_FIELD_ORDER.join(",")}\n${SAMPLE_CSV_ROW.map((v) => `"${v}"`).join(",")}\n`,
 )}`;
 
 export function CsvDropzone({ onFileSelected, disabled }: CsvDropzoneProps) {

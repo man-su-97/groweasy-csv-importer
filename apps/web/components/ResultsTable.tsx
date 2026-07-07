@@ -1,27 +1,32 @@
+import { Download } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { CrmRecord, CrmStatus, ImportResult } from "@/lib/types";
+import { downloadTextFile, recordsToCsv } from "@/lib/csv";
+import { CRM_FIELD_ORDER, CrmRecord, CrmStatus, ImportResult } from "@/lib/types";
 import { type VariantProps } from "class-variance-authority";
 
-const COLUMNS: { key: keyof CrmRecord; label: string }[] = [
-  { key: "created_at", label: "Created At" },
-  { key: "name", label: "Name" },
-  { key: "email", label: "Email" },
-  { key: "country_code", label: "Country Code" },
-  { key: "mobile_without_country_code", label: "Mobile" },
-  { key: "company", label: "Company" },
-  { key: "city", label: "City" },
-  { key: "state", label: "State" },
-  { key: "country", label: "Country" },
-  { key: "lead_owner", label: "Lead Owner" },
-  { key: "crm_status", label: "Status" },
-  { key: "crm_note", label: "Note" },
-  { key: "data_source", label: "Source" },
-  { key: "possession_time", label: "Possession Time" },
-  { key: "description", label: "Description" },
-];
+const COLUMN_LABELS: Record<keyof CrmRecord, string> = {
+  created_at: "Created At",
+  name: "Name",
+  email: "Email",
+  country_code: "Country Code",
+  mobile_without_country_code: "Mobile",
+  company: "Company",
+  city: "City",
+  state: "State",
+  country: "Country",
+  lead_owner: "Lead Owner",
+  crm_status: "Status",
+  crm_note: "Note",
+  data_source: "Source",
+  possession_time: "Possession Time",
+  description: "Description",
+};
+
+const COLUMNS = CRM_FIELD_ORDER.map((key) => ({ key, label: COLUMN_LABELS[key] }));
 
 interface ResultsTableProps {
   result: ImportResult;
@@ -34,12 +39,25 @@ interface ResultsTableProps {
 export function ResultsTable({ result }: ResultsTableProps) {
   const { imported, skipped, total } = result;
 
+  function handleExport() {
+    const csv = recordsToCsv(imported, CRM_FIELD_ORDER);
+    const date = new Date().toISOString().slice(0, 10);
+    downloadTextFile(`groweasy_imported_leads_${date}.csv`, csv, "text/csv;charset=utf-8;");
+  }
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Total rows" value={total} tone="neutral" />
         <StatCard label="Imported" value={imported.length} tone="success" />
         <StatCard label="Skipped" value={skipped} tone="warning" />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-foreground">Imported records</p>
+        <Button variant="outline" size="sm" onClick={handleExport} disabled={imported.length === 0}>
+          <Download className="h-3.5 w-3.5" /> Export CSV
+        </Button>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">

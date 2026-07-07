@@ -39,6 +39,27 @@ export interface CrmRecord {
   description: string | null;
 }
 
+// Canonical column order for the CRM schema — shared by the sample CSV
+// template (CsvDropzone) and the results export (ResultsTable) so both
+// stay in sync with apps/api/src/types/crm.ts by construction.
+export const CRM_FIELD_ORDER: (keyof CrmRecord)[] = [
+  "created_at",
+  "name",
+  "email",
+  "country_code",
+  "mobile_without_country_code",
+  "company",
+  "city",
+  "state",
+  "country",
+  "lead_owner",
+  "crm_status",
+  "crm_note",
+  "data_source",
+  "possession_time",
+  "description",
+];
+
 export type RawCsvRow = Record<string, string>;
 
 export interface ImportResult {

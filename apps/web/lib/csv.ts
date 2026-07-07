@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import { RawCsvRow } from "./types";
+import { CrmRecord, RawCsvRow } from "./types";
 
 export interface ParsedCsv {
   rows: RawCsvRow[];
@@ -32,4 +32,27 @@ export function readFileAsText(file: File): Promise<string> {
     reader.onerror = () => reject(reader.error ?? new Error("Failed to read file"));
     reader.readAsText(file);
   });
+}
+
+/**
+ * Step 4 — serializes the AI-mapped, server-validated records back into a
+ * CSV a user can re-import elsewhere as a "cleaned" version of their file.
+ * Uses papaparse's own escaping (quotes, embedded commas) rather than
+ * hand-rolled string joining.
+ */
+export function recordsToCsv(records: CrmRecord[], fieldOrder: (keyof CrmRecord)[]): string {
+  const data = records.map((record) => fieldOrder.map((field) => record[field] ?? ""));
+  return Papa.unparse({ fields: fieldOrder as string[], data });
+}
+
+export function downloadTextFile(filename: string, content: string, mimeType: string): void {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
